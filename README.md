@@ -4,4 +4,10 @@
 
 Jonas: Timers
 
-Quintin: Remote 
+Quintin: morse code
+
+Niels: wifikit
+
+Jarno: hardware schema's, draaiknoppen 
+
+Loge: remote
