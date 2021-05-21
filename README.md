@@ -1,3 +1,7 @@
 # Hackathon
 
-Taakverdeling
+# Taakverdeling:
+
+Jonas: Timers
+
+Quintin: Remote 
