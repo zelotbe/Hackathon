@@ -3,6 +3,16 @@
 
 #define ADDRESS 0x20
 
+const byte settings[6][2] = {
+  //{address, setting}
+  {0x00, 0xFF}, // Set portA as input for encoders
+  {0x01, 0xFC}, // Set portB as input for buttons, output for LEDs
+  {0x04, 0x3F}, // Set interrupts for encoders
+  {0x05, 0xE0}, // Set interrupts for buttons
+  {0x0C, 0xFF}, // Enable pull-up on portA
+  {0x0D, 0xFC} // Enable pull-up on upper portB
+};
+
 void initExpander() {
   // Encoder: portA (0-5)
   // Buttons: portB (7-5)
@@ -15,41 +25,13 @@ void initExpander() {
 
   delay(100);
 
-  Wire.beginTransmission(ADDRESS);
-  Wire.write(0x00); Wire.write(0xFF); // Set portA as input for encoders
-  Wire.endTransmission();
+  for(byte i = 0; i < sizeof(settings)/sizeof(settings[0]); i++) {
+    Wire.beginTransmission(ADDRESS);
+    Wire.write(settings[i][0]); Wire.write(settings[i][1]);
+    Wire.endTransmission();
+    delay(100);
+  }
 
-  delay(100);
-
-  Wire.beginTransmission(ADDRESS);
-  Wire.write(0x01); Wire.write(0xFC); // Set portB as input for buttons, output for LEDs
-  Wire.endTransmission();
-
-  delay(100);
-
-  Wire.beginTransmission(ADDRESS);
-  Wire.write(0x04); Wire.write(0x3F); // Set interrupts for encoders
-  Wire.endTransmission();
-
-  delay(100);
-
-  Wire.beginTransmission(ADDRESS);
-  Wire.write(0x05); Wire.write(0xE0); // Set interrupts for buttons
-  Wire.endTransmission();
-
-  delay(100);
-
-  Wire.beginTransmission(ADDRESS);
-  Wire.write(0x0C); Wire.write(0xFF); // Enable pull-up on portA
-  Wire.endTransmission();
-
-  delay(100);
-
-  Wire.beginTransmission(ADDRESS);
-  Wire.write(0x0D); Wire.write(0xFC); // Enable pull-up on upper portB
-  Wire.endTransmission();
-
-  delay(100);
 }
 
 void writeGreenLed(bool state) {
