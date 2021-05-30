@@ -2,10 +2,7 @@
 #include <Wire.h>
 
 #define ADDRESS 0x20
-
-int pwmR = 0;
-int pwmG = 0;
-int pwmB = 0;
+#define DEVIATION 30
 
 byte prevEncoderValue = B00000000;
 
@@ -19,14 +16,23 @@ const byte settings[6][2] = {
   {0x0D, 0xFC} // Enable pull-up on upper portB
 };
 
-const byte pins[] = {
+const byte targetLedPins[] = {
   15, // Target R
   12, // Target G
   10, // Target B
+};
+
+const int currentLedPins[] = {
   6, // Current R
   26, // Current G
   25 // Current B
 };
+
+byte targetLedValues[3];
+byte currentLedValues[3];
+
+bool codeCorrect = false;
+
 
 void initExpander() {
   // Encoder: portA (0-5)
@@ -73,6 +79,18 @@ int fetchFromAddress(byte addr) {
   return result;
 }
 
+boolean checkForCodeMatch() {
+  for(byte i = 0; i < sizeof(targetLedValues); i++) {
+    if(currentLedValues[i] - DEVIATION < targetLedValues[i]) return false;
+    if(currentLedValues[i] + DEVIATION > targetLedValues[i]) return false;
+  }
+  return true;
+}
+
+void updateCurrentLed() {
+  for(byte i = 0; i < sizeof(currentLedValues); i++) analogWrite(currentLedPins[i], currentLedValues[i]);
+}
+
 /*
 Encoder for Red:
 Clockwise           xxxx xx00 -> xxxx xx01 -> xxxx xx11
@@ -103,52 +121,55 @@ void handleEncoder() {
 
   // Clockwise
   if(((prevResultRed == 0x00 && currentResultRed == 0x01) || (prevResultRed == 0x01 && currentResultRed == 0x03)) || ((prevResultRed == 0x03 && currentResultRed == 0x02) || (prevResultRed == 0x02 && currentResultRed == 0x00))) {
-    pwmR += 5;
-    if(pwmR > 255) pwmR = 255;
+    currentLedValues[0] += 5;
+    if (currentLedValues[0] > 255) currentLedValues[0] = 255;
   }
 
   //Counter-Clockwise
   if(((prevResultRed == 0x00 && currentResultRed == 0x02) || (prevResultRed == 0x02 && currentResultRed == 0x03)) || ((prevResultRed == 0x03 && currentResultRed == 0x01) || (prevResultRed == 0x01 && currentResultRed == 0x00))) {
-    pwmR -= 5;
-    if(pwmR < 0) pwmR = 0;
+    currentLedValues[0] -= 5;
+    if (currentLedValues[0] < 0) currentLedValues[0] = 0;
   }
 
 
   // Detect change in green
   // Clockwise
   if(((prevResultGreen == 0x00 && currentResultGreen == 0x01) || (prevResultGreen == 0x01 && currentResultGreen == 0x03)) || ((prevResultGreen == 0x03 && currentResultGreen == 0x02) || (prevResultGreen == 0x02 && currentResultGreen == 0x00))) {
-    pwmG += 5;
-    if(pwmG > 255) pwmG = 255;
+    currentLedValues[1] += 5;
+    if (currentLedValues[1] > 255) currentLedValues[1] = 255;
   }
 
   //Counter-Clockwise
   if(((prevResultGreen == 0x00 && currentResultGreen == 0x02) || (prevResultGreen == 0x02 && currentResultGreen == 0x03)) || ((prevResultGreen == 0x03 && currentResultGreen == 0x01) || (prevResultGreen == 0x01 && currentResultGreen == 0x00))) {
-    pwmG -= 5;
-    if(pwmG < 0) pwmG = 0;
+    currentLedValues[1] -= 5;
+    if (currentLedValues[1] < 0) currentLedValues[1] = 0;
   }
 
 
   // Detect change in blue
   // Clockwise
   if (((prevResultBlue == 0x00 && currentResultBlue == 0x01) || (prevResultBlue == 0x01 && currentResultBlue == 0x03)) || ((prevResultBlue == 0x03 && currentResultBlue == 0x02) || (prevResultBlue == 0x02 && currentResultBlue == 0x00))) {
-    pwmB += 5;
-    if (pwmB > 255) pwmB = 255;
+    currentLedValues[2] += 5;
+    if (currentLedValues[2] > 255) currentLedValues[2] = 255;
   }
 
   //Counter-Clockwise
   if(((prevResultBlue == 0x00 && currentResultBlue == 0x02) || (prevResultBlue == 0x02 && currentResultBlue == 0x03)) || ((prevResultBlue == 0x03 && currentResultBlue == 0x01) || (prevResultBlue == 0x01 && currentResultBlue == 0x00))) {
-    pwmB -= 5;
-    if(pwmB < 0) pwmB = 0;
+    currentLedValues[2] -= 5;
+    if (currentLedValues[2] < 0) currentLedValues[2] = 0;
   }
 
+  updateCurrentLed();
+  codeCorrect = checkForCodeMatch();
   prevEncoderValue = result;
 
 }
 
 void newPWMValues() {
-  pwmR = random(0, 1024);
-  pwmG = random(0, 1024);
-  pwmB = random(0, 1024);
+  for(byte i = 0; i < sizeof(targetLedPins); i++) {
+    targetLedValues[i] = random(0, 1024);
+    analogWrite(targetLedPins[i], targetLedValues[i]);
+  }
 }
 
 void reset() {
@@ -199,7 +220,8 @@ void setup() {
 
   initExpander();
 
-  for(byte pin: pins) pinMode(pin, OUTPUT);
+  for(byte pin: targetLedPins) pinMode(pin, OUTPUT);
+  for (byte pin : currentLedPins) pinMode(pin, OUTPUT);
 
   newPWMValues();
 
@@ -214,5 +236,12 @@ void loop() {
   if(digitalRead(3)) {
     handleButton();
   }
+  while(codeCorrect) {
+    // Send morse
 
+    // Handle next, previous, reset
+    if(digitalRead(3)) {
+      handleButton();
+    }
+  }
 }
