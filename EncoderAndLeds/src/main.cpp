@@ -19,6 +19,15 @@ const byte settings[6][2] = {
   {0x0D, 0xFC} // Enable pull-up on upper portB
 };
 
+const byte pins[] = {
+  15, // Target R
+  12, // Target G
+  10, // Target B
+  6, // Current R
+  26, // Current G
+  25 // Current B
+};
+
 void initExpander() {
   // Encoder: portA (0-5)
   // Buttons: portB (7-5)
@@ -136,8 +145,15 @@ void handleEncoder() {
 
 }
 
+void newPWMValues() {
+  pwmR = random(0, 1024);
+  pwmG = random(0, 1024);
+  pwmB = random(0, 1024);
+}
+
 void reset() {
   // Reset the code and the colorvalues
+  newPWMValues();
 }
 
 void previousNumber() {
@@ -146,6 +162,7 @@ void previousNumber() {
 
 void nextNumber() {
   // Reset the colorvalues and get next digit of code
+  newPWMValues();
 }
 
 /*
@@ -179,8 +196,14 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   Serial.println("Starting...");
+
   initExpander();
-  writeGreenLed(HIGH);
+
+  for(byte pin: pins) pinMode(pin, OUTPUT);
+
+  newPWMValues();
+
+  writeRedLed(HIGH);
 }
 
 void loop() {
