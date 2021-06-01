@@ -1,38 +1,32 @@
 /**
- * Arduino ESP8266 telnet server with some ansi experiments
- * @author: shawn_a
+ * @author: Niels Temmerman
  */
 
 #include <ESP8266WiFi.h>
 #include <Arduino.h>
 
-/* Set these to your desired AP credentials. */
 const char *APssid = "ESPap";
 const char *APpassword = "esp123456789";
 int port = 80;
 
 String randomCode;
 
-// declare telnet server (do NOT put in setup())
 WiFiServer TelnetServer(port);
 WiFiClient Telnet;
 
 void handleTelnet(){
   if (TelnetServer.hasClient()){
-    // client is connected
     if (!Telnet || !Telnet.connected()){
-      if(Telnet) Telnet.stop();          // client disconnected
-      Telnet = TelnetServer.available(); // ready for new client
+      if(Telnet) Telnet.stop();          
+      Telnet = TelnetServer.available(); 
     } else {
-      TelnetServer.available().stop();  // have client, block new conections
+      TelnetServer.available().stop();  
     }
   }
 
   if (Telnet && Telnet.connected() && Telnet.available()){
-    // client input processing
     while(Telnet.available())
-      Serial.write(Telnet.read()); // pass through
-      // do other stuff with client input here
+      Serial.write(Telnet.read());
   } 
 }
 
@@ -46,17 +40,15 @@ void startAP(){
 
 void setup() {
   Serial.begin(115200);
-  // Serial.setDebugOutput(true);
-  delay(1000); // serial delay
+  delay(1000);
 
   Serial.println();
-  Serial.println("Staring AP");
-  startAP();   // startup is async ?
-  delay(4000); // ap delay
+  Serial.println("Starting AP");
+  startAP();   
+  delay(4000); 
 
   TelnetServer.begin();
   Serial.print("Starting telnet server on port " + (String)port);
-  // TelnetServer.setNoDelay(true); // ESP BUG ?
   Serial.println();
   delay(100);
 
@@ -65,7 +57,7 @@ void setup() {
 
 void loop() {
   handleTelnet();
-  Telnet.println(1234);
+  Telnet.println(randomCode);
   delay(100);
 }
 

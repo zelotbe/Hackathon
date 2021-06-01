@@ -4,7 +4,10 @@ SoftwareSerial ESP01(2, 3); // RX, TX
 
 const String ssid = "ESPap";
 const String password = "esp123456789";
-String randomCode;   
+char code[4] = {' ', ' ', ' ', ' '};
+bool beginMetLezen = false;
+bool codeNietGevonden = true;
+int i = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -14,33 +17,58 @@ void setup() {
 }
 
 void loop() {
-  if (ESP01.available()) {
-    Serial.write(ESP01.read());
+  if (ESP01.available() && codeNietGevonden) {
+    char temp = ESP01.read();
+
+    if(code[3] != ' '){
+      beginMetLezen = false;
+    }
+    
+    if(beginMetLezen){
+      code[i] = temp;
+      i++;
+    }
+    
+    if(temp == ':'){
+      beginMetLezen = true;
+    }
   }
-  if (Serial.available()){
+  if (Serial.available()) {
     ESP01.write(Serial.read());
   }
+
+  Serial.print(code[0]);
+  Serial.print(code[1]);
+  Serial.print(code[2]);
+  Serial.println(code[3]);
+  
+  if(code[3] != ' '){
+    codeNietGevonden == false;
+    Serial.println("CODE GEVONDEN");
+  }
+  
+  delay(500);
 }
 
-void connectToNetwork(){
+void connectToNetwork() {
   ESP01.println("AT+CIPMUX=0");
   delay(1000);
   printResponse();
-  
+
   ESP01.println("AT+CWMODE=1");
   Serial.println("AT+CWMODE=1");
-  if(ESP01.find("OK")){
+  if (ESP01.find("OK")) {
     Serial.println("Response: OK");
   }
   delay(100);
   ESP01.println("AT+CWJAP=\"ESPap\",\"esp123456789\"");
-  Serial.println("AT+CWJAP= "+ ssid + "," + password);
+  Serial.println("AT+CWJAP= " + ssid + "," + password);
   delay(100);
-  if(ESP01.find("OK")){
+  if (ESP01.find("OK")) {
     Serial.println("Response: OK");
   }
   delay(5000);
-  
+
   ESP01.println("AT+CIPSTART=\"TCP\",\"192.168.4.1\",80");
   delay(1000);
   printResponse();
@@ -48,19 +76,19 @@ void connectToNetwork(){
 
 void printResponse() {
   while (ESP01.available()) {
-    Serial.println(ESP01.readStringUntil('\n')); 
+    Serial.println(ESP01.readStringUntil('\n'));
   }
 }
 
-String generateRandomCode(){
+String generateRandomCode() {
   int randomCode[4];
   String stringCode;
-  
-  for(int i = 0; i < 4; i++){
-    randomCode[i] = random(0,10);
+
+  for (int i = 0; i < 4; i++) {
+    randomCode[i] = random(0, 10);
   }
 
-  for(int i = 0; i < 4; i++){
+  for (int i = 0; i < 4; i++) {
     stringCode += String(randomCode[i]);
   }
   return stringCode;
