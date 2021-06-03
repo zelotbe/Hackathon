@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <Wire.h>
+#include <U8g2lib.h>
 
 #define ADDRESS 0x20
 #define DEVIATION 30
@@ -17,21 +18,23 @@ const byte settings[6][2] = {
 };
 
 const byte targetLedPins[] = {
-  15, // Target R
-  12, // Target G
-  10, // Target B
+  0, // Target R
+  13, // Target G
+  12, // Target B
 };
 
 const int currentLedPins[] = {
-  6, // Current R
-  26, // Current G
-  25 // Current B
+  14, // Current R
+  1, // Current G
+  3 // Current B
 };
 
-byte targetLedValues[3];
-byte currentLedValues[3];
+byte targetLedValues[] = {0, 0, 0};
+byte currentLedValues[] = {0, 0, 0};
 
 bool codeCorrect = false;
+
+U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0, 16, 5, 4);
 
 
 void initExpander() {
@@ -215,8 +218,14 @@ void handleButton() {
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(9600);
-  Serial.println("Starting...");
+  u8g2.begin();
+
+  u8g2.firstPage();
+  u8g2.setFont(u8g2_font_logisoso32_tf);
+  do {
+    u8g2.setCursor(10, 30);
+    u8g2.print("test");
+  } while (u8g2.nextPage());
 
   initExpander();
 
