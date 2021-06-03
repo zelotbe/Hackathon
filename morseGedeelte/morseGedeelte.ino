@@ -7,7 +7,7 @@
 //Nog bekijken voor transmitter
 int IR_TX = 1; //VERANDEREN VOOR LATER, alleen voor testen van code
 
-//Numbers 0-9
+//Nummers 0-9
 const char* numbers[] = {
   "-----", ".----", "..---", "...--", "....-", ".....",
 "-....", "--...", "---..", "----."
@@ -33,6 +33,7 @@ void charOutNumbers(char* numbers){
     slashDotDetection(numbers[count]);
     count++;
   }
+  delay(morseDelay);
 }
 
 void slashDotDetection(char currentChar){
