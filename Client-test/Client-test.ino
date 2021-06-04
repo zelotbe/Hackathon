@@ -8,6 +8,13 @@ char code[4] = {' ', ' ', ' ', ' '};
 bool beginMetLezen = false;
 bool codeNietGevonden = true;
 int i = 0;
+int IR_TX = 1; 
+
+const char* numbers[] = {
+  "-----", ".----", "..---", "...--", "....-", ".....",
+"-....", "--...", "---..", "----."
+};
+const int morseDelay = 250;
 
 void setup() {
   Serial.begin(9600);
@@ -92,4 +99,32 @@ String generateRandomCode() {
     stringCode += String(randomCode[i]);
   }
   return stringCode;
+}
+
+void charOutNumbers(char* numbers){
+  int count;
+
+  while(numbers[count] != '\0'){
+    slashDotDetection(numbers[count]);
+    count++;
+  }
+  delay(morseDelay);
+}
+
+void slashDotDetection(char currentChar){
+  
+  //Aanzetten van de transmitter
+  digitalWrite(IR_TX, HIGH);
+
+  //Duratie is 3 keer een dot
+  if(currentChar == '-'){
+    delay(1500);
+  }
+
+  if(currentChar == '.'){
+    delay(500);
+  }
+
+  digitalWrite(IR_TX, LOW);
+  delay(morseDelay);
 }
