@@ -1,9 +1,10 @@
 #include <Arduino.h>
 #include <Wire.h>
-#include <U8g2lib.h>
+#include <SPI.h>
 
 #define ADDRESS 0x20
 #define DEVIATION 30
+#define MAXVALUE 1023
 
 byte prevEncoderValue = B00000000;
 
@@ -23,25 +24,24 @@ const byte targetLedPins[] = {
   12, // Target B
 };
 
-const int currentLedPins[] = {
+const byte currentLedPins[] = {
   14, // Current R
-  1, // Current G
+  5, // Current G
   3 // Current B
 };
 
-byte targetLedValues[] = {0, 0, 0};
-byte currentLedValues[] = {0, 0, 0};
+int targetLedValues[] = {0, 0, 0};
+int currentLedValues[] = {0, 0, 0};
 
 bool codeCorrect = false;
-
-U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0, 16, 5, 4);
 
 
 void initExpander() {
   // Encoder: portA (0-5)
   // Buttons: portB (7-5)
   // Leds: portB (0-1)
-  Wire.begin(); // Join bus as master
+  //Wire.pins(4, 2); //sda : 4, scl:2
+  Wire.begin(4, 2); // Join bus as master 
 
   Wire.beginTransmission(ADDRESS);
   Wire.write(0x0A); Wire.write(0x22); // Disable auto-increment address
@@ -71,7 +71,7 @@ void writeRedLed(bool state) {
 }
 
 int fetchFromAddress(byte addr) {
-  byte result;
+  byte result = 0;
   Wire.beginTransmission(ADDRESS);
   Wire.write(addr);
   Wire.endTransmission();
@@ -83,15 +83,17 @@ int fetchFromAddress(byte addr) {
 }
 
 boolean checkForCodeMatch() {
-  for(byte i = 0; i < sizeof(targetLedValues); i++) {
-    if(currentLedValues[i] - DEVIATION < targetLedValues[i]) return false;
-    if(currentLedValues[i] + DEVIATION > targetLedValues[i]) return false;
+  for(byte i = 0; i < 3; i++) {
+    // 200 - 30 > 200 
+    // 200 + 30 < 200
+    if(targetLedValues[i] - DEVIATION > currentLedValues[i]) return false;
+    if(targetLedValues[i] + DEVIATION < currentLedValues[i]) return false;
   }
   return true;
 }
 
 void updateCurrentLed() {
-  for(byte i = 0; i < sizeof(currentLedValues); i++) analogWrite(currentLedPins[i], currentLedValues[i]);
+  for(byte i = 0; i < 3; i++) analogWrite(currentLedPins[i], currentLedValues[i]*4);
 }
 
 /*
@@ -164,14 +166,18 @@ void handleEncoder() {
 
   updateCurrentLed();
   codeCorrect = checkForCodeMatch();
+  if(codeCorrect) {
+    writeRedLed(LOW);
+    writeGreenLed(HIGH);
+  }
   prevEncoderValue = result;
 
 }
 
 void newPWMValues() {
-  for(byte i = 0; i < sizeof(targetLedPins); i++) {
-    targetLedValues[i] = random(0, 1024);
-    analogWrite(targetLedPins[i], targetLedValues[i]);
+  for(byte i = 0; i < 3; i++) {
+    targetLedValues[i] = 255;//random(0, 255);
+    analogWrite(targetLedPins[i], targetLedValues[i]*4);
   }
 }
 
@@ -218,14 +224,6 @@ void handleButton() {
 
 void setup() {
   // put your setup code here, to run once:
-  u8g2.begin();
-
-  u8g2.firstPage();
-  u8g2.setFont(u8g2_font_logisoso32_tf);
-  do {
-    u8g2.setCursor(10, 30);
-    u8g2.print("test");
-  } while (u8g2.nextPage());
 
   initExpander();
 
@@ -239,17 +237,17 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  if(digitalRead(2)) {
+  if(digitalRead(16)) {
     handleEncoder();
   }
-  if(digitalRead(3)) {
+  if(false) { // HACKY
     handleButton();
   }
   while(codeCorrect) {
     // Send morse
 
     // Handle next, previous, reset
-    if(digitalRead(3)) {
+    if(false) {
       handleButton();
     }
   }
