@@ -8,48 +8,186 @@
 int IR_TX = 1; //VERANDEREN VOOR LATER, alleen voor testen van code
 
 //Nummers 0-9
-const char* numbers[] = {
+char code[4] = {'5', '2', '1', '0'};
+char* numbers[] = {
   "-----", ".----", "..---", "...--", "....-", ".....",
-"-....", "--...", "---..", "----."
+  "-....", "--...", "---..", "----."
 };
 const int morseDelay = 250;
-
+int dot = 500;
+int dash = dot * 3;
+int pause = dot;
+int Spaces = dot * 3;
 
 void setup() {
+  pinMode(12, OUTPUT);
   Serial.begin(9600);
 }
 
 void loop() {
-  char currentChar;
-
- //afwachten tot wat de input is van de vorige puzzel
-
-}
-
-void charOutNumbers(char* numbers){
-  int count;
-
-  while(numbers[count] != '\0'){
-    slashDotDetection(numbers[count]);
-    count++;
-  }
-  delay(morseDelay);
-}
-
-void slashDotDetection(char currentChar){
-  
-  //Aanzetten van de transmitter
-  digitalWrite(IR_TX, HIGH);
-
-  //Duratie is 3 keer een dot
-  if(currentChar == '-'){
-    delay(1500);
-  }
-
-  if(currentChar == '.'){
+  char currentNumber;
+  for (int i = 0; i < sizeof(code) - 1; i++) {
+    currentNumber = code[i];
+    Serial.println(currentNumber);
     delay(500);
+    charOutNumbers(currentNumber);
+  }
+  LightsOff(8000);
+
+}
+void playDot()
+{
+  digitalWrite(12, HIGH);
+  delay(dot);
+}
+void playDash()
+{
+  digitalWrite(12, HIGH);
+  delay(dash);
+}
+
+// Turn Off
+void LightsOff(int delayTime)
+{
+  digitalWrite(12, LOW);
+  delay(delayTime);
+}
+
+void charOutNumbers(char currentChar) {
+  switch (currentChar) {
+    case '0':
+      playDash();
+      LightsOff(pause);
+      playDash();
+      LightsOff(pause);
+      playDash();
+      LightsOff(pause);
+      playDash();
+      LightsOff(pause);
+      playDash();
+      LightsOff(pause);
+      break;
+
+    case '1':
+      playDot();
+      LightsOff(pause);
+      playDash();
+      LightsOff(pause);
+      playDash();
+      LightsOff(pause);
+      playDash();
+      LightsOff(pause);
+      playDash();
+      LightsOff(pause);
+
+      break;
+
+    case '2':
+      playDot();
+      LightsOff(pause);
+      playDot();
+      LightsOff(pause);
+      playDash();
+      LightsOff(pause);
+      playDash();
+      LightsOff(pause);
+      playDash();
+      LightsOff(pause);
+      break;
+
+    case '3':
+      playDot();
+      LightsOff(pause);
+      playDot();
+      LightsOff(pause);
+      playDot();
+      LightsOff(pause);
+      playDash();
+      LightsOff(pause);
+      playDash();
+      LightsOff(pause);
+      break;
+
+    case '4':
+      playDot();
+      LightsOff(pause);
+      playDot();
+      LightsOff(pause);
+      playDot();
+      LightsOff(pause);
+      playDot();
+      LightsOff(pause);
+      playDash();
+      LightsOff(pause);
+      break;
+
+    case '5':
+      playDot();
+      LightsOff(pause);
+      playDot();
+      LightsOff(pause);
+      playDot();
+      LightsOff(pause);
+      playDot();
+      LightsOff(pause);
+      playDot();
+      LightsOff(pause);
+      break;
+
+    case '6':
+      playDash();
+      LightsOff(pause);
+      playDot();
+      LightsOff(pause);
+      playDot();
+      LightsOff(pause);
+      playDot();
+      LightsOff(pause);
+      playDot();
+      LightsOff(pause);
+      break;
+
+    case '7':
+      playDash();
+      LightsOff(pause);
+      playDash();
+      LightsOff(pause);
+      playDot();
+      LightsOff(pause);
+      playDot();
+      LightsOff(pause);
+      playDot();
+      LightsOff(pause);
+      break;
+
+    case '8':
+      playDash();
+      LightsOff(pause);
+      playDash();
+      LightsOff(pause);
+      playDash();
+      LightsOff(pause);
+      playDot();
+      LightsOff(pause);
+      playDot();
+      LightsOff(pause);
+      break;
+
+    case '9':
+      playDash();
+      LightsOff(pause);
+      playDash();
+      LightsOff(pause);
+      playDash();
+      LightsOff(pause);
+      playDash();
+      LightsOff(pause);
+      playDot();
+      LightsOff(pause);
+      break;
+    default:
+      LightsOff(Spaces);
   }
 
-  digitalWrite(IR_TX, LOW);
   delay(morseDelay);
 }
