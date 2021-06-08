@@ -1,5 +1,9 @@
+/**
+ * @author: Niels Temmerman
+ */
+
 #include <SoftwareSerial.h>
-SoftwareSerial ESP01(2, 3); // RX, TX
+SoftwareSerial ESP01(2, 3); // RX, TX naar ESP-01
 
 
 const String ssid = "ESPap";
@@ -18,7 +22,7 @@ void setup() {
 
 void loop() {
   if (ESP01.available() && codeNietGevonden) {
-    char temp = ESP01.read();
+    char temp = ESP01.read(); //Uitlezen van chars op de softserial van de ESP-01
 
     if(code[3] != ' '){
       beginMetLezen = false;
@@ -42,7 +46,7 @@ void loop() {
   Serial.print(code[2]);
   Serial.println(code[3]);
   
-  if(code[3] != ' '){
+  if(code[3] != ' '){ //Blijft doorgaan tot de hele code is gevonden.
     codeNietGevonden == false;
     Serial.println("CODE GEVONDEN");
   }
@@ -50,7 +54,7 @@ void loop() {
   delay(500);
 }
 
-void connectToNetwork() {
+void connectToNetwork() { //Configuratie om te verbinden met de wifikit.
   ESP01.println("AT+CIPMUX=0");
   delay(1000);
   printResponse();
@@ -74,22 +78,8 @@ void connectToNetwork() {
   printResponse();
 }
 
-void printResponse() {
+void printResponse() { //Om te kijken of de reactie juist is van de ESP-01
   while (ESP01.available()) {
     Serial.println(ESP01.readStringUntil('\n'));
   }
-}
-
-String generateRandomCode() {
-  int randomCode[4];
-  String stringCode;
-
-  for (int i = 0; i < 4; i++) {
-    randomCode[i] = random(0, 10);
-  }
-
-  for (int i = 0; i < 4; i++) {
-    stringCode += String(randomCode[i]);
-  }
-  return stringCode;
 }

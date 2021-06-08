@@ -43,12 +43,12 @@ void setup() {
   delay(1000);
 
   Serial.println();
-  Serial.println("Starting AP");
+  Serial.println("Starten AP");
   startAP();   
   delay(4000); 
 
   TelnetServer.begin();
-  Serial.print("Starting telnet server on port " + (String)port);
+  Serial.print("Port: " + (String)port);
   Serial.println();
   delay(100);
 
@@ -57,11 +57,11 @@ void setup() {
 
 void loop() {
   handleTelnet();
-  Telnet.println(randomCode);
+  Telnet.println(randomCode); //Heel de tijd de code doorsturen.
   delay(100);
 }
 
-String generateRandomCode(){
+String generateRandomCode(){ //Elke keer als deze functie wordt opgeroepen wordt er een nieuwe random code gegenereerd.
   int randomCode[4];
   String stringCode;
   
