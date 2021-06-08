@@ -12,6 +12,13 @@ char code[4] = {' ', ' ', ' ', ' '};
 bool beginMetLezen = false;
 bool codeNietGevonden = true;
 int i = 0;
+int IR_TX = 1; 
+
+const char* numbers[] = {
+  "-----", ".----", "..---", "...--", "....-", ".....",
+"-....", "--...", "---..", "----."
+};
+const int morseDelay = 250;
 
 void setup() {
   Serial.begin(9600);
@@ -82,4 +89,32 @@ void printResponse() { //Om te kijken of de reactie juist is van de ESP-01
   while (ESP01.available()) {
     Serial.println(ESP01.readStringUntil('\n'));
   }
+}
+
+void charOutNumbers(char* numbers){
+  int count;
+
+  while(numbers[count] != '\0'){
+    slashDotDetection(numbers[count]);
+    count++;
+  }
+  delay(morseDelay);
+}
+
+void slashDotDetection(char currentChar){
+
+  //Aanzetten van de transmitter
+  digitalWrite(IR_TX, HIGH);
+
+  //Duratie is 3 keer een dot
+  if(currentChar == '-'){
+    delay(1500);
+  }
+
+  if(currentChar == '.'){
+    delay(500);
+  }
+
+  digitalWrite(IR_TX, LOW);
+  delay(morseDelay);
 }
