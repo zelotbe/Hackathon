@@ -7,9 +7,11 @@
 #define DEVIATION 30
 #define MAXVALUE 1023
 
-const char* APssid = "ESPap";
-const char* APpassword = "esp123456789";
+const char* APssid = "kaas";
+const char* APpassword = "JorisMearvoet";
 int port = 80;
+
+int codeIndex;
 
 WiFiServer TelnetServer(port);
 WiFiClient Telnet;
@@ -211,36 +213,43 @@ void handleEncoder() {
 
 void newPWMValues() {
   for(byte i = 0; i < 3; i++) {
-    targetLedValues[i] = 255;//random(0, 255);
+    targetLedValues[i] = random(0, 255);
     analogWrite(targetLedPins[i], targetLedValues[i]*4);
   }
 }
 
-String generateRandomCode() { //Elke keer als deze functie wordt opgeroepen wordt er een nieuwe random code gegenereerd.
-  int randomCode[4];
+//Elke keer als deze functie wordt opgeroepen wordt er een nieuwe random code gegenereerd.
+void generateRandomCode() { 
+  int randomInt[4];
   String stringCode;
 
   for (int i = 0; i < 4; i++) {
-    randomCode[i] = random(0, 10);
+    randomInt[i] = random(0, 10);
   }
 
   for (int i = 0; i < 4; i++) {
-    stringCode += String(randomCode[i]);
+    stringCode += String(randomInt[i]);
   }
-  return stringCode;
+  randomCode = stringCode;
 }
 
 void reset() {
   // Reset the code and the colorvalues
+  generateRandomCode();
   newPWMValues();
 }
 
 void previousNumber() {
   // Reset the colorvalues and get previous digit of code
+  if(codeIndex - 1 < 0) return;
+  codeIndex--;
+  newPWMValues();
 }
 
 void nextNumber() {
   // Reset the colorvalues and get next digit of code
+  if(codeIndex + 1 > 3) return;
+  codeIndex++;
   newPWMValues();
 }
 
@@ -284,7 +293,7 @@ void setup() {
 
   TelnetServer.begin();
 
-  randomCode = generateRandomCode();
+  generateRandomCode();
 
   newPWMValues();
 
