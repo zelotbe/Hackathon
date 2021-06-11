@@ -7,9 +7,11 @@
 #define DEVIATION 30
 #define MAXVALUE 1023
 
-const char* APssid = "kaas";
-const char* APpassword = "JorisMearvoet";
+const char* APssid = "ESPap";
+const char* APpassword = "esp123456789";
 int port = 80;
+
+long lastMillis = 0;
 
 int codeIndex;
 
@@ -121,7 +123,8 @@ void handleTelnet() {
 
   if (Telnet && Telnet.connected() && Telnet.available()) {
     while (Telnet.available())
-      Serial.write(Telnet.read());
+      //Serial.write(Telnet.read());
+      Telnet.read();
   }
 }
 
@@ -129,8 +132,6 @@ void startAP() {
   WiFi.mode(WIFI_AP);
   WiFi.softAP(APssid, APpassword);
   IPAddress myIP = WiFi.softAPIP();
-  Serial.print("AP IP address: ");
-  Serial.println(myIP);
 }
 
 /*
@@ -285,13 +286,15 @@ void setup() {
 
   initExpander();
 
-  for(byte pin: targetLedPins) pinMode(pin, OUTPUT);
-  for (byte pin : currentLedPins) pinMode(pin, OUTPUT);
-
   startAP();
-  delay(1000);
+  delay(4000);
 
   TelnetServer.begin();
+
+  Telnet.println(randomCode);
+
+  for(byte pin: targetLedPins) pinMode(pin, OUTPUT);
+  for (byte pin : currentLedPins) pinMode(pin, OUTPUT);
 
   generateRandomCode();
 
@@ -303,13 +306,18 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   handleTelnet();
-  Telnet.println(randomCode);
+  if(millis() - lastMillis > 1000) {
+    Telnet.println(randomCode);
+    lastMillis = millis();
+  }
+  
   if(digitalRead(16)) {
     handleEncoder();
   }
   if(analogRead(A0) > 1000 ? true: false) { // HACKY
     handleButton();
   }
+  delay(3);
   while(codeCorrect) {
     // Send morse
 
