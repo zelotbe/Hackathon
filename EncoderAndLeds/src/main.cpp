@@ -291,6 +291,8 @@ void setup() {
 
   TelnetServer.begin();
 
+  delay(4000);
+
   Telnet.println(randomCode);
 
   for(byte pin: targetLedPins) pinMode(pin, OUTPUT);
@@ -317,7 +319,7 @@ void loop() {
   if(analogRead(A0) > 1000 ? true: false) { // HACKY
     handleButton();
   }
-  delay(3);
+  delay(30);
   while(codeCorrect) {
     // Send morse
 
