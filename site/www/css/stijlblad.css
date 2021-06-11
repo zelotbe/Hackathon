@@ -41,6 +41,7 @@ main div{
 #team h3{
     text-align: center;
     margin-top: 4%;
+    margin-bottom:2.5%;
 }
 .team-container{
     display:flex;
@@ -51,6 +52,43 @@ main div{
 .team-lid{
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.team-lid h3{
+
+}
+.foto-wrap{
+    position: relative;
+    width: 70%;
+    margin: 0 auto;
+    transition: all 0.2s ease-in-out;
+}
+.foto-wrap img{
+    transition: all 0.1s ease-in-out;
+}
+.foto-wrap:hover img{
+    filter: blur(5px);
+}
+.foto-wrap:hover p{
+    font-weight: bold;
+    color: black;
+    visibility:visible;
+    opacity:1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: underline;
+}
+.foto-wrap p{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    color: #fff;
+    visibility: hidden;
+    opacity: 0;
 }
 .foto-container{
     width: 35%;
@@ -83,4 +121,7 @@ section h3{
     line-height: 180%;
     height:20vh;
     width:30%;
+}
+.team-hover:hover{
+    filter: blur(5px);
 }
