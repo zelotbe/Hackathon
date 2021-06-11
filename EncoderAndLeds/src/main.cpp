@@ -11,6 +11,16 @@ const char* APssid = "kaas";
 const char* APpassword = "JorisMearvoet";
 int port = 80;
 
+const char *numbers[] = {
+  "-----", ".----", "..---", "...--", "....-", ".....",
+  "-....", "--...", "---..", "----."
+};
+const int morseDelay = 250;
+int dotLen = 500;     // length of the morse code 'dot'
+int dashLen = dotLen * 3;    // length of the morse code 'dash'
+int elemPause = dotLen;  // length of the pause between elements of a character
+int Spaces = dotLen * 3;     // length of the spaces between characters
+int wordPause = dotLen * 7;  // length of the pause between words
 int codeIndex;
 
 WiFiServer TelnetServer(port);
@@ -279,10 +289,142 @@ void handleButton() {
   if(result & 0x20) nextNumber();
 
 }
+//  MORSE CODE
+void MorseDot()
+{
+  digitalWrite(D8, HIGH);    // turn the LED on 
+  delay(dotLen);              // hold in this position
+}
+void MorseDash()
+{
+  digitalWrite(D8, HIGH);    // turn the LED on 
+  delay(dashLen);               // hold in this position
+}
+
+// Turn Off
+void LightsOff(int delayTime)
+{
+  digitalWrite(D8, LOW);     // turn the LED off   
+  delay(delayTime);             // hold in this position
+}
+
+void charOutNumbers(char currentChar) {
+  switch (currentChar) {
+    case '0':  
+    MorseDot();
+    LightsOff(elemPause);
+    MorseDash();
+    LightsOff(elemPause);
+    break;
+    
+    case '1':
+    MorseDash();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    break;
+    
+    case '2':
+    MorseDash();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    break;
+
+    case '3':
+    MorseDash();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    break;
+
+    case '4':
+    MorseDash();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    break;
+
+    case '5':
+    MorseDash();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    break;
+
+    case '6':
+    MorseDash();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    break;
+
+    case '7':
+    MorseDash();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    break;
+
+    case '8':
+    MorseDash();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    break;
+    
+    case '9':
+    MorseDash();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    MorseDot();
+    LightsOff(elemPause);
+    break;
+    default:
+    LightsOff(Spaces);
+  }
+    
+  delay(morseDelay);
+}
 
 void setup() {
   // put your setup code here, to run once:
-
+  pinMode(D8,OUTPUT);
   initExpander();
 
   for(byte pin: targetLedPins) pinMode(pin, OUTPUT);
@@ -312,7 +454,19 @@ void loop() {
   }
   while(codeCorrect) {
     // Send morse
+     char code[4];
+     int codeLengte = randomCode.length() + 1;
+     char codeArray[codeLengte];
+     randomCode.toCharArray(codeArray, codeLengte);
 
+     char currentNumber;
+    for (int i = 0; i < codeLengte; i++) {
+      currentNumber = randomCode[i];
+      Serial.println(currentNumber);
+      delay(500);
+      charOutNumbers(currentNumber);
+  }
+  LightsOff(8000);
     // Handle next, previous, reset
     if(analogRead(A0) > 1000 ? true: false) { // HACKY
       handleButton();
