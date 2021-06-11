@@ -7,8 +7,8 @@
 #define DEVIATION 30
 #define MAXVALUE 1023
 
-const char* APssid = "Kaasje";
-const char* APpassword = "JorisMearvoet123";
+const char* APssid = "ESPap";
+const char* APpassword = "esp123456789";
 int port = 80;
 
 long lastMillis = 0;
@@ -32,14 +32,15 @@ String randomCode;
 
 byte prevEncoderValue = B00000000;
 
-const byte settings[6][2] = {
+const byte settings[7][2] = {
   //{address, setting}
   {0x00, 0xFF}, // Set portA as input for encoders
   {0x01, 0xFC}, // Set portB as input for buttons, output for LEDs
   {0x04, 0x3F}, // Set interrupts for encoders
   {0x05, 0xE0}, // Set interrupts for buttons
   {0x0C, 0xFF}, // Enable pull-up on portA
-  {0x0D, 0xFC} // Enable pull-up on upper portB
+  {0x0D, 0xFC}, // Enable pull-up on upper portB
+  {0x0A, 0x40} // Mirror INT pin
 };
 
 const byte targetLedPins[] = {
@@ -456,12 +457,16 @@ void loop() {
   }
   
   if(digitalRead(16)) {
-    handleEncoder();
+    int result = fetchFromAddress(0x10) | fetchFromAddress(0x11 << 8);
+    if(result >> 8) {
+      handleEncoder();
+    }
+    if(result << 8) {
+      handleButton();
+    }
+    
   }
-  if(analogRead(A0) > 1000 ? true: false) { // HACKY
-    handleButton();
-  }
-  delay(30);
+
   while(codeCorrect) {
     // Send morse
      char code[4];
@@ -478,8 +483,15 @@ void loop() {
   }
   LightsOff(8000);
     // Handle next, previous, reset
-    if(analogRead(A0) > 1000 ? true: false) { // HACKY
+  if (digitalRead(16)) {
+    int result = fetchFromAddress(0x10) | fetchFromAddress(0x11 << 8);
+    if (result >> 8) {
+      handleEncoder();
+    }
+    if (result << 8) {
       handleButton();
     }
+
+  }
   }
 }
