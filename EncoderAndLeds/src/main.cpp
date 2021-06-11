@@ -240,14 +240,14 @@ void loop() {
   if(digitalRead(16)) {
     handleEncoder();
   }
-  if(false) { // HACKY
+  if(analogRead(A0) > 1000 ? true: false) { // HACKY
     handleButton();
   }
   while(codeCorrect) {
     // Send morse
 
     // Handle next, previous, reset
-    if(false) {
+    if(analogRead(A0) > 1000 ? true: false) { // HACKY
       handleButton();
     }
   }
