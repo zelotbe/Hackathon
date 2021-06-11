@@ -1,10 +1,20 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <SPI.h>
+#include <ESP8266WiFi.h>
 
 #define ADDRESS 0x20
 #define DEVIATION 30
 #define MAXVALUE 1023
+
+const char* APssid = "ESPap";
+const char* APpassword = "esp123456789";
+int port = 80;
+
+WiFiServer TelnetServer(port);
+WiFiClient Telnet;
+
+String randomCode;
 
 byte prevEncoderValue = B00000000;
 
@@ -96,6 +106,31 @@ void updateCurrentLed() {
   for(byte i = 0; i < 3; i++) analogWrite(currentLedPins[i], currentLedValues[i]*4);
 }
 
+void handleTelnet() {
+  if (TelnetServer.hasClient()) {
+    if (!Telnet || !Telnet.connected()) {
+      if (Telnet) Telnet.stop();
+      Telnet = TelnetServer.available();
+    }
+    else {
+      TelnetServer.available().stop();
+    }
+  }
+
+  if (Telnet && Telnet.connected() && Telnet.available()) {
+    while (Telnet.available())
+      Serial.write(Telnet.read());
+  }
+}
+
+void startAP() {
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP(APssid, APpassword);
+  IPAddress myIP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(myIP);
+}
+
 /*
 Encoder for Red:
 Clockwise           xxxx xx00 -> xxxx xx01 -> xxxx xx11
@@ -181,6 +216,20 @@ void newPWMValues() {
   }
 }
 
+String generateRandomCode() { //Elke keer als deze functie wordt opgeroepen wordt er een nieuwe random code gegenereerd.
+  int randomCode[4];
+  String stringCode;
+
+  for (int i = 0; i < 4; i++) {
+    randomCode[i] = random(0, 10);
+  }
+
+  for (int i = 0; i < 4; i++) {
+    stringCode += String(randomCode[i]);
+  }
+  return stringCode;
+}
+
 void reset() {
   // Reset the code and the colorvalues
   newPWMValues();
@@ -230,6 +279,13 @@ void setup() {
   for(byte pin: targetLedPins) pinMode(pin, OUTPUT);
   for (byte pin : currentLedPins) pinMode(pin, OUTPUT);
 
+  startAP();
+  delay(1000);
+
+  TelnetServer.begin();
+
+  randomCode = generateRandomCode();
+
   newPWMValues();
 
   writeRedLed(HIGH);
@@ -237,6 +293,8 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
+  handleTelnet();
+  Telnet.println(randomCode);
   if(digitalRead(16)) {
     handleEncoder();
   }
