@@ -7,8 +7,8 @@
 #define DEVIATION 30
 #define MAXVALUE 1023
 
-const char* APssid = "ESPap";
-const char* APpassword = "esp123456789";
+const char* APssid = "Kaasje";
+const char* APpassword = "JorisMearvoet123";
 int port = 80;
 
 long lastMillis = 0;
