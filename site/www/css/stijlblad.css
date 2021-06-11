@@ -1,5 +1,16 @@
 html{
-    font-family: 'Prompt', sans-serif;
+    font-family: 'Josefin Sans', sans-serif;
+}
+.back{
+    position: fixed;
+    top: 2%;
+    left: 2%;
+    font-size: 4em;
+    color: white;
+}
+.back i{
+    color: #444444;
+    text-shadow: 1px 0px 1px #CCCCCC, 0px 1px 1px #EEEEEE, 2px 1px 1px #CCCCCC, 1px 2px 1px #EEEEEE, 3px 2px 1px #CCCCCC, 2px 3px 1px #EEEEEE, 4px 3px 1px #CCCCCC, 3px 4px 1px #EEEEEE, 5px 4px 1px #CCCCCC, 4px 5px 1px #EEEEEE, 6px 5px 1px #CCCCCC, 5px 6px 1px #EEEEEE, 7px 6px 1px #CCCCCC;
 }
 header{
     height:60vh;
@@ -92,6 +103,7 @@ main div{
 }
 .foto-container{
     width: 35%;
+    margin: 0 auto;
 }
 img{
     width: 100%;
@@ -104,7 +116,7 @@ section p {
     margin: 0 auto;
 }
 section h3{
-    margin-bottom: 2.5%;
+    margin: 2.5% 0;
 }
 .subscript{
     vertical-align: super;
@@ -124,4 +136,17 @@ section h3{
 }
 .team-hover:hover{
     filter: blur(5px);
+}
+.code{
+    width:70%;
+    height:50vh;
+    overflow: scroll;
+    margin: 0 auto;
+}
+.reminder{
+    text-align: center;
+    padding: 5%;
+    background-color: black;
+    color: white;
+    margin: 5% 0;
 }
