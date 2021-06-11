@@ -23,7 +23,7 @@ int dashLen = dotLen * 3;    // length of the morse code 'dash'
 int elemPause = dotLen;  // length of the pause between elements of a character
 int Spaces = dotLen * 3;     // length of the spaces between characters
 int wordPause = dotLen * 7;  // length of the pause between words
-int codeIndex;
+int codeIndex = 0;
 
 WiFiServer TelnetServer(port);
 WiFiClient Telnet;
@@ -95,7 +95,7 @@ void writeRedLed(bool state) {
   Wire.endTransmission();
 }
 
-int fetchFromAddress(byte addr) {
+byte fetchFromAddress(byte addr) {
   byte result = 0;
   Wire.beginTransmission(ADDRESS);
   Wire.write(addr);
@@ -245,52 +245,7 @@ void generateRandomCode() {
   randomCode = stringCode;
 }
 
-void reset() {
-  // Reset the code and the colorvalues
-  generateRandomCode();
-  newPWMValues();
-}
 
-void previousNumber() {
-  // Reset the colorvalues and get previous digit of code
-  if(codeIndex - 1 < 0) return;
-  codeIndex--;
-  newPWMValues();
-}
-
-void nextNumber() {
-  // Reset the colorvalues and get next digit of code
-  if(codeIndex + 1 > 3) return;
-  codeIndex++;
-  newPWMValues();
-}
-
-/*
-R-button (reset):
-1xxx xxxx -> not pressed
-0xxx xxxx -> pressed
-
-G-button (prev):
-x1xx xxxx -> not pressed
-x0xx xxxx -> pressed
-
-B-button (next):
-xx1x xxxx -> not pressed
-xx0x xxxx -> pressed
-*/
-void handleButton() {
-  byte result = ~fetchFromAddress(0x11); // Watch the flip
-
-  // Handle reset (left)
-  if(result & 0x80) reset();
-
-  // Handle previous (middle)
-  if(result & 0x40) previousNumber();
-
-  // Handle next (right)
-  if(result & 0x20) nextNumber();
-
-}
 //  MORSE CODE
 void MorseDot()
 {
@@ -456,15 +411,12 @@ void loop() {
     lastMillis = millis();
   }
   
-  if(digitalRead(16)) {
-    int result = fetchFromAddress(0x10) | fetchFromAddress(0x11 << 8);
-    if(result >> 8) {
+  if (!digitalRead(16)) {
+    unsigned int result = fetchFromAddress(0x10) + (fetchFromAddress(0x11) << 8);
+    if (result & 0xFF00) { // PORTA
       handleEncoder();
     }
-    if(result << 8) {
-      handleButton();
-    }
-    
+
   }
 
   while(codeCorrect) {
@@ -477,21 +429,9 @@ void loop() {
      char currentNumber;
     for (int i = 0; i < codeLengte; i++) {
       currentNumber = randomCode[i];
-      Serial.println(currentNumber);
       delay(500);
       charOutNumbers(currentNumber);
-  }
-  LightsOff(8000);
-    // Handle next, previous, reset
-  if (digitalRead(16)) {
-    int result = fetchFromAddress(0x10) | fetchFromAddress(0x11 << 8);
-    if (result >> 8) {
-      handleEncoder();
     }
-    if (result << 8) {
-      handleButton();
-    }
-
-  }
+    LightsOff(8000);
   }
 }
