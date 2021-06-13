@@ -32,8 +32,9 @@ String randomCode;
 
 byte prevEncoderValue = B00000000;
 
+// Settings for the IO expander
+//{address, setting}
 const byte settings[7][2] = {
-  //{address, setting}
   {0x00, 0xFF}, // Set portA as input for encoders
   {0x01, 0xFC}, // Set portB as input for buttons, output for LEDs
   {0x04, 0x3F}, // Set interrupts for encoders
@@ -43,21 +44,25 @@ const byte settings[7][2] = {
   {0x0A, 0x40} // Mirror INT pin
 };
 
+// Define pins for target RGB
 const byte targetLedPins[] = {
   0, // Target R
   13, // Target G
   12, // Target B
 };
 
+// Define pins for user generated RGB
 const byte currentLedPins[] = {
   14, // Current R
   5, // Current G
   3 // Current B
 };
 
+// Keep track of the values
 int targetLedValues[] = {0, 0, 0};
 int currentLedValues[] = {0, 0, 0};
 
+// Keep track if code was correct
 bool codeCorrect = false;
 
 
@@ -74,6 +79,7 @@ void initExpander() {
 
   delay(100);
 
+  // Set the settings
   for(byte i = 0; i < sizeof(settings)/sizeof(settings[0]); i++) {
     Wire.beginTransmission(ADDRESS);
     Wire.write(settings[i][0]); Wire.write(settings[i][1]);
@@ -83,18 +89,21 @@ void initExpander() {
 
 }
 
+// Function to set RED status LED
 void writeGreenLed(bool state) {
   Wire.beginTransmission(ADDRESS);
   Wire.write(0x15); Wire.write(state << 1);
   Wire.endTransmission();
 }
 
+// Function to set GREEN status LED
 void writeRedLed(bool state) {
   Wire.beginTransmission(ADDRESS);
   Wire.write(0x15); Wire.write(state);
   Wire.endTransmission();
 }
 
+// Function to get data from address on IO expander
 byte fetchFromAddress(byte addr) {
   byte result = 0;
   Wire.beginTransmission(ADDRESS);
@@ -107,6 +116,7 @@ byte fetchFromAddress(byte addr) {
   return result;
 }
 
+// Check if the generated PWM matches the random PWM
 boolean checkForCodeMatch() {
   for(byte i = 0; i < 3; i++) {
     // 200 - 30 > 200 
@@ -117,6 +127,7 @@ boolean checkForCodeMatch() {
   return true;
 }
 
+// Set all the targetLEDs to their respective value
 void updateCurrentLed() {
   for(byte i = 0; i < 3; i++) analogWrite(currentLedPins[i], currentLedValues[i]*4);
 }
@@ -213,6 +224,7 @@ void handleEncoder() {
     if (currentLedValues[2] < 0) currentLedValues[2] = 0;
   }
 
+  // Set the target RGB with their respective PWM values
   updateCurrentLed();
   codeCorrect = checkForCodeMatch();
   if(codeCorrect) {
@@ -223,6 +235,7 @@ void handleEncoder() {
 
 }
 
+// Function to make new PWM values, using random
 void newPWMValues() {
   for(byte i = 0; i < 3; i++) {
     targetLedValues[i] = random(0, 255);
@@ -379,8 +392,8 @@ void charOutNumbers(char currentChar) {
   delay(morseDelay);
 }
 
+// Setup the system
 void setup() {
-  // put your setup code here, to run once:
   pinMode(D8,OUTPUT);
   initExpander();
 
@@ -403,22 +416,29 @@ void setup() {
   writeRedLed(HIGH);
 }
 
+// Main system loop
 void loop() {
-  // put your main code here, to run repeatedly:
+
   handleTelnet();
+
+  // If > 1s passed, send code again
   if(millis() - lastMillis > 1000) {
     Telnet.println(randomCode);
     lastMillis = millis();
   }
   
+  // If interrupt has occured
   if (!digitalRead(16)) {
+    // Get the port wich caused the interrupt
     unsigned int result = fetchFromAddress(0x10) + (fetchFromAddress(0x11) << 8);
-    if (result & 0xFF00) { // PORTA
+    // PORTA caused interrupt
+    if (result & 0xFF00) {
       handleEncoder();
     }
 
   }
 
+  // Loop to send the code
   while(codeCorrect) {
     // Send morse
      char code[4];
