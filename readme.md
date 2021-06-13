@@ -1,3 +1,0 @@
-# Hackathon
-
-Taakverdeling
