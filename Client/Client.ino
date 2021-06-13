@@ -1,6 +1,7 @@
-#include "LedControl.h"
+#include <LedControl.h>
+#include "IRremote.h"
 #include <SoftwareSerial.h>
-#include <IRremote.h>
+
 
 #define Button_0 0xFF6897
 #define Button_1 0xFF30CF
