@@ -14,11 +14,11 @@
 #define Button_8 0xFF4AB5
 #define Button_9 0xFF52AD
 
-const String ssid = "ESPap";
-const String password = "esp123456789";
-char code[4] = { ' ', ' ', ' ', ' ' };
-bool beginMetLezen = false;
-bool codeNietGevonden = true;
+const String ssid = "ESPap"; //SSID Acces Point
+const String password = "esp123456789"; //Wachtwoord Acces Point
+char code[4] = { ' ', ' ', ' ', ' ' }; //Char array voor de random code
+bool beginMetLezen = false; //Check flag 1
+bool codeNietGevonden = true; //Check flag 2
 
 const int RECV_PIN = 2;
 IRrecv irrecv(RECV_PIN);
@@ -87,7 +87,8 @@ void printResponse() { //Om te kijken of de reactie juist is van de ESP-01
   }
 }
 
-void connectToNetwork() { //Configuratie om te verbinden met de wifikit.
+//Bron voor de AT-Commands: https://www.instructables.com/Getting-Started-With-the-ESP8266-ESP-01/
+void connectToNetwork() { //Configuratie om te verbinden met de wifikit door het sturen van AT-Commands
   ESP01.println("AT+CIPMUX=0");
   delay(1000);
   printResponse();
@@ -209,11 +210,13 @@ void loop() {
 
 
     if (str.indexOf(':') > 0) {
-      int index = str.indexOf(':');
-      String result = str.substring(index + 1, str.length() - 1);
+      int index = str.indexOf(':'); //Zoek index van ':' voor uitlezen code
+
+      String result = str.substring(index + 1, str.length() - 1); //Substring van de code
+
       if (result.length() == 4) {
         for (byte i = 0; i < 4; i++) {
-          code[i] = result.charAt(i);
+          code[i] = result.charAt(i); //Add to char array
         }
       }
     }

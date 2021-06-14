@@ -7,9 +7,10 @@
 #define DEVIATION 30
 #define MAXVALUE 1023
 
-const char* APssid = "ESPap";
-const char* APpassword = "esp123456789";
-int port = 80;
+//Bron voor de Telnet-Server: https://gist.github.com/tablatronix/4793677ca748f5f584c95ec4a2b10303#file-esptelnetansi-ino-L23
+const char* APssid = "ESPap"; //SSID Acces Point
+const char* APpassword = "esp123456789"; //Wachtwoord Acces Point
+int port = 80; //Declaratie port
 
 long lastMillis = 0;
 
@@ -25,10 +26,11 @@ int Spaces = dotLen * 3;     // length of the spaces between characters
 int wordPause = dotLen * 7;  // length of the pause between words
 int codeIndex = 0;
 
-WiFiServer TelnetServer(port);
-WiFiClient Telnet;
+//Declaratie telnet server
+WiFiServer TelnetServer(port); 
+WiFiClient Telnet; 
 
-String randomCode;
+String randomCode; //Declaratie random code
 
 byte prevEncoderValue = B00000000;
 
@@ -134,16 +136,18 @@ void updateCurrentLed() {
 
 void handleTelnet() {
   if (TelnetServer.hasClient()) {
+      //Client verbonden
     if (!Telnet || !Telnet.connected()) {
-      if (Telnet) Telnet.stop();
-      Telnet = TelnetServer.available();
+      if (Telnet) Telnet.stop(); //Client disconnected
+      Telnet = TelnetServer.available(); //Klaar maken voor nieuwe client
     }
     else {
-      TelnetServer.available().stop();
+      TelnetServer.available().stop(); //Als er al een client verbonden is mag niemand anders nog verbinden
     }
   }
 
   if (Telnet && Telnet.connected() && Telnet.available()) {
+      //client input
     while (Telnet.available())
       //Serial.write(Telnet.read());
       Telnet.read();
@@ -151,9 +155,9 @@ void handleTelnet() {
 }
 
 void startAP() {
-  WiFi.mode(WIFI_AP);
-  WiFi.softAP(APssid, APpassword);
-  IPAddress myIP = WiFi.softAPIP();
+  WiFi.mode(WIFI_AP); //Wifi mode naar acces point
+  WiFi.softAP(APssid, APpassword); //declaratie van het ssid en wachtwoord
+  IPAddress myIP = WiFi.softAPIP(); // Declaratie ip addres
 }
 
 /*
@@ -245,17 +249,17 @@ void newPWMValues() {
 
 //Elke keer als deze functie wordt opgeroepen wordt er een nieuwe random code gegenereerd.
 void generateRandomCode() { 
-  int randomInt[4];
+  int randomInt[4]; //Array random nummers
   String stringCode;
 
   for (int i = 0; i < 4; i++) {
-    randomInt[i] = random(0, 10);
+    randomInt[i] = random(0, 10); //Set random number on each index
   }
 
   for (int i = 0; i < 4; i++) {
-    stringCode += String(randomInt[i]);
+    stringCode += String(randomInt[i]); //Int array to string
   }
-  randomCode = stringCode;
+  randomCode = stringCode; //Set random code
 }
 
 
