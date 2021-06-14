@@ -1,10 +1,10 @@
 #include <LedControl.h>
-#include "IRremote.h"
+#include "IRremote.h"           //Library used: https://github.com/Arduino-IRremote/Arduino-IRremote
 #include <SoftwareSerial.h>
 
 
-#define Button_0 0xFF6897
-#define Button_1 0xFF30CF
+#define Button_0 0xFF6897       //Gekeken welk signaal de remote geeft als u op een bepaald knopje drukt,
+#define Button_1 0xFF30CF       //en zo de drukknoppen gedefinieerd die in dit project gebruikt worden
 #define Button_2 0xFF18E7
 #define Button_3 0xFF7A85
 #define Button_4 0xFF10EF
