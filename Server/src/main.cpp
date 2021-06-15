@@ -14,6 +14,10 @@ int port = 80; //Declaratie port
 
 long lastMillis = 0;
 
+//Numbers 0-9
+//Website used as reference for the morse code rules / standards.
+//http://students.cs.ucl.ac.uk/schoolslab/projects/PY2/introduction.html
+//Quintin Coryn-ICT6
 const char *numbers[] = {
   "-----", ".----", "..---", "...--", "....-", ".....",
   "-....", "--...", "---..", "----."
@@ -281,7 +285,7 @@ void LightsOff(int delayTime)
   digitalWrite(D8, LOW);     // turn the LED off   
   delay(delayTime);             // hold in this position
 }
-
+//Check every number seperatly
 void charOutNumbers(char currentChar) {
   switch (currentChar) {
     case '0':  
@@ -448,13 +452,13 @@ void loop() {
      char code[4];
      int codeLengte = randomCode.length() + 1;
      char codeArray[codeLengte];
-     randomCode.toCharArray(codeArray, codeLengte);
+     randomCode.toCharArray(codeArray, codeLengte); //String to char array
 
      char currentNumber;
     for (int i = 0; i < codeLengte; i++) {
       currentNumber = randomCode[i];
       delay(500);
-      charOutNumbers(currentNumber);
+      charOutNumbers(currentNumber);//Get current number in for loop
     }
     LightsOff(8000);
   }
