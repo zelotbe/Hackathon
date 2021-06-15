@@ -6,8 +6,8 @@
 SoftwareSerial ESP01(2, 3); // RX, TX naar ESP-01
 
 
-const String ssid = "Kaasje";
-const String password = "JorisMearvoet123";
+const String ssid = "ESPap";
+const String password = "esp123456789";
 char code[4] = {' ', ' ', ' ', ' '};
 bool beginMetLezen = false;
 bool codeNietGevonden = true;
